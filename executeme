@@ -1,0 +1,6 @@
+#!/bin/bash
+
+prof=$1
+site=$2
+
+java -cp ".:js.jar" Trabalho $prof $site
