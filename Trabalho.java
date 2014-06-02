@@ -31,7 +31,7 @@ class Crawler extends Thread{
 		if(profundidade>0){
 		    //cria conexão
 		    Socket socket=new Socket(site.getHost(),porta);
-		    socket.setSoTimeout(1000);	//fecha conexao
+		    socket.setSoTimeout(4000);	//fecha conexao
 		    //cabeçalho
 		    BufferedWriter escrita = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
 		    escrita.write("GET"+site.getPath()+" HTTP/1.1\n");
