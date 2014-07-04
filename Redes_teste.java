@@ -5,11 +5,14 @@
 *Versao para correcao de erros
 */
 
-
 import java.net.*;
 import java.io.*;
 import java.util.*;
 import java.lang.Object.*;
+
+import javax.net.ssl.*;
+import com.sun.net.ssl.*;
+import java.security.*;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,28 +28,28 @@ class Crawler{
 	public Crawler(Integer prof, URL url){
 		this.profundidade=prof;
 		this.site=url;
-		this.porta=80;
+		this.porta=443;
 	};
 
 	public void Vai(){
 		try{
-			//cria um socket para conexao http
-			Socket socket=new Socket(site.getHost(),porta);
-			//socket.setSoTimeout(2000);		//fecha conexao por timeout
+	
+			//Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+			//System.setProperty("java.protocol.handler.pkgs","com.sun.net.ssl.internal.www.protocol"); 
 
+			//cria um socket para conexao https com ssl
+
+			Socket socket = SSLSocketFactory.getDefault().createSocket(site.getHost(),porta);
+
+			System.out.println("Criou Socket");
 			//cria cabeçalho
-			BufferedWriter escrita=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
-			//PrintWriter escrita=new PrintWriter(socket.getOutputStream());
 
-//			escrita.write("GET / HTTP/1.1\r\n");		//como esta no site--diferente do ultimo trabalho para teste
-//			escrita.write("\r\n");
 
-			//escrita.print("GET / HTTP/1.1\n");   //+site.getPath()+
-			//escrita.print("Host: "+site.getHost()+"\n\n");
-			
-			escrita.write("GET / HTTP/1.1\n");   //+site.getPath()+
-			escrita.write("Host: "+site.getHost()+"\n\n");
-			
+			Writer escrita = new OutputStreamWriter(socket.getOutputStream(), "ISO-8859-1");
+         		escrita.write("GET / HTTP/1.1\r\n");  
+         		escrita.write("Host: " + site.getHost() + ":" + porta + "\r\n");  
+         		escrita.write("Agent: SSL-TEST\r\n");  
+         		escrita.write("\r\n");
 
 			//envia pacote
 			escrita.flush();
@@ -77,7 +80,7 @@ class Crawler{
 			while(it.hasNext()){
 				String temp=(it.next()).attr("href");
 				if(temp.startsWith("http")){
-					System.out.println("AQUI --"+temp);
+					System.out.println("URL: "+temp);
 				}
 			}
 		}
@@ -88,7 +91,7 @@ class Crawler{
 	
 }
 
-public class Redes_teste{
+public class Redes{
 
 	public static void main(String[] args){
 		try{

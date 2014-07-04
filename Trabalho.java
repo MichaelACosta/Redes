@@ -8,6 +8,10 @@ import java.io.*;
 import java.util.*;
 import java.lang.Object.*;
 
+import javax.net.ssl.*;
+import com.sun.net.ssl.*;
+import java.security.*;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,21 +27,33 @@ class Crawler extends Thread{
     public Crawler(Integer prof, URL url){
         profundidade=prof;
         site=url;
-        porta=80;	//garante sempre porta 80;
+        porta=443;	//porta 443 para https;
     };
     
     public void run(){        
 	try{
 		if(profundidade>0){
-		    //cria conexão
-		    Socket socket=new Socket(site.getHost(),porta);
-		    socket.setSoTimeout(4000);	//fecha conexao
+		    //cria conexão socket http
+		    //Socket socket=new Socket(site.getHost(),porta);
+
+		    //cria conexão socket https
+		    Socket socket = SSLSocketFactory.getDefault().createSocket(site.getHost(),porta);
+
 		    //cabeçalho
-		    BufferedWriter escrita = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
-		    escrita.write("GET"+site.getPath()+" HTTP/1.1\n");
-		    escrita.write("Host: "+site.getHost()+"\n\n");
+		    /*BufferedWriter escrita = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
+		    escrita.write("GET / HTTP/1.1\n");
+		    escrita.write("Host: "+site.getHost()+"\n\n");*/
+
+		    //cabeçalho para https
+		    Writer escrita = new OutputStreamWriter(socket.getOutputStream(), "ISO-8859-1");
+         	    escrita.write("GET / HTTP/1.1\r\n");  
+         	    escrita.write("Host: " + site.getHost() + ":" + porta + "\r\n");  
+         	    escrita.write("Agent: SSL-TEST\r\n");  
+         	    escrita.write("\r\n");
+
 		    //envia pacote
 		    escrita.flush();
+
 		    //recebe pacote
 		    BufferedReader leitura=new BufferedReader(new InputStreamReader(socket.getInputStream()));    
 		    StringBuilder linha=new StringBuilder();
@@ -74,7 +90,7 @@ class Crawler extends Thread{
 		}
 	}
 	catch (IOException e) {
-            System.out.println("Erro URL "+site);
+	    System.out.println("Erro URL "+site);
         }
     }
     
